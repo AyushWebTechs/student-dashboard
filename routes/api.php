@@ -25,5 +25,5 @@ Route::get('/performance-distribution', [App\Http\Controllers\StudentController:
 Route::get('/quick-stats', [App\Http\Controllers\StudentController::class, 'getQuickStats']);
 Route::post('/students', [App\Http\Controllers\StudentController::class, 'addStudent']);
 Route::get('/students-stats', [App\Http\Controllers\StudentController::class, 'getStudentStats']);
-Route::post('/students/import', [App\Http\Controllers\StudentController::class, 'importStudents']);
-Route::get('/students/export', [App\Http\Controllers\StudentController::class, 'exportStudents']);
+Route::post('/students/v1/import', [App\Http\Controllers\StudentController::class, 'importStudents']);
+Route::get('/students/v1/export', [App\Http\Controllers\StudentController::class, 'exportStudents']);

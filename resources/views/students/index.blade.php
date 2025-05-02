@@ -2237,7 +2237,7 @@
                 });
 
                 // Send file to server
-                fetch('/api/students/import', {
+                fetch('/api/students/v1/import', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -2295,21 +2295,47 @@
                     }
                 });
 
-                // Create a temporary link to trigger the download
-                const link = document.createElement('a');
-                link.href = `/api/students/export?${params.toString()}`;
-                link.setAttribute('download', `students_export_${new Date().toISOString().split('T')[0]}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Fetch the file with proper headers
+                fetch(`/api/students/v1/export?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/csv',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create a URL for the blob
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', `students_export_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
 
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Export Started',
-                    text: 'Your CSV file download should begin shortly.',
-                    timer: 2000,
-                    showConfirmButton: false
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Export Successful',
+                        text: 'Your CSV file has been downloaded.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Export Failed',
+                        text: 'An error occurred while exporting the CSV file.'
+                    });
                 });
             });
         });
